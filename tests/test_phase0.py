@@ -57,7 +57,11 @@ def test_search_finds_relevant_messages(tmp_path: Path) -> None:
     ]
     for m in msgs:
         append(m, log)
-    hits = search("oauth refresh", log, top_k=5)
+    # Tests exercise the substring fallback path — semantic path is
+    # covered by a live dogfood test against the real Qdrant index,
+    # not pytest, because it requires an embedder model + running
+    # service we do not spin up in unit tests.
+    hits = search("oauth refresh", log, top_k=5, mode="substring")
     assert len(hits) == 2
     assert {m.author for m in hits} == {"a", "c"}
 
@@ -65,7 +69,7 @@ def test_search_finds_relevant_messages(tmp_path: Path) -> None:
 def test_search_empty_query_returns_empty(tmp_path: Path) -> None:
     log = tmp_path / "swarm.jsonl"
     append(Message.create(author="a", role=Role.QUESTION, text="x", ts=_ts(1)), log)
-    assert search("   ", log) == []
+    assert search("   ", log, mode="substring") == []
 
 
 def test_export_creates_one_file_per_message_with_wikilinks(tmp_path: Path) -> None:

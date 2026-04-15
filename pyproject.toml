@@ -8,6 +8,8 @@ license = { file = "LICENSE" }
 authors = [{ name = "Morty2049" }]
 dependencies = [
     "pydantic>=2.6",
+    "qdrant-client>=1.10",
+    "sentence-transformers>=3.0",
 ]
 
 [project.scripts]

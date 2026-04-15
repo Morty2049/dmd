@@ -26,10 +26,12 @@ import sys
 from pathlib import Path
 
 from ingest_claude_transcript import ingest
-from phase0.obsidian_exporter import export
 
-DEFAULT_LOG = Path("data/swarm.jsonl")
-DEFAULT_VAULT = Path("vault")
+from phase0.obsidian_exporter import export
+from phase0.paths import default_log_path, default_vault_path
+
+DEFAULT_LOG = default_log_path()
+DEFAULT_VAULT = default_vault_path()
 
 
 def _project_slug(cwd: Path) -> str:

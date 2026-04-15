@@ -39,11 +39,12 @@ from typing import Any
 
 from phase0.appender import append
 from phase0.obsidian_exporter import export
+from phase0.paths import default_log_path, default_vault_path
 from protocol.roles import Role
 from protocol.schema import Message, TokenCost
 
-DEFAULT_LOG = Path("data/swarm.jsonl")
-DEFAULT_VAULT = Path("vault")
+DEFAULT_LOG = default_log_path()
+DEFAULT_VAULT = default_vault_path()
 
 # Text-block prefixes that indicate injected context rather than real
 # user input. If a user text block starts with any of these, we drop

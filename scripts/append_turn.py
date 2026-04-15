@@ -43,12 +43,13 @@ from pathlib import Path
 
 from phase0.appender import append
 from phase0.obsidian_exporter import export
+from phase0.paths import default_log_path, default_vault_path
 from phase0.reader import read_all
 from protocol.roles import Role
 from protocol.schema import Message, TokenCost
 
-DEFAULT_LOG = Path("data/swarm.jsonl")
-DEFAULT_VAULT = Path("vault")
+DEFAULT_LOG = default_log_path()
+DEFAULT_VAULT = default_vault_path()
 
 
 def _latest_in_session(log_path: Path, session_tag: str) -> str | None:

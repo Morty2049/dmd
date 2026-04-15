@@ -33,13 +33,14 @@ from pathlib import Path
 from phase0.appender import append
 from phase0.mention_router import extract_mentions
 from phase0.obsidian_exporter import export as export_vault
+from phase0.paths import default_log_path, default_vault_path
 from phase0.reader import read_all, tail
 from phase0.search import search
 from protocol.roles import Role
 from protocol.schema import Message, TokenCost
 
-DEFAULT_LOG = Path(os.environ.get("DMD_LOG_PATH", "data/swarm.jsonl"))
-DEFAULT_VAULT = Path(os.environ.get("DMD_VAULT_PATH", "vault"))
+DEFAULT_LOG = Path(os.environ.get("DMD_LOG_PATH") or str(default_log_path()))
+DEFAULT_VAULT = Path(os.environ.get("DMD_VAULT_PATH") or str(default_vault_path()))
 
 
 def _short(text: str, width: int = 72) -> str:
