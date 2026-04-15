@@ -6,8 +6,11 @@ model: "claude-opus-4-6"
 role: answer
 reply_to: "05ef7c160b5c934e"
 tags: ["dmd:self", "self-ingest", "dogfooding", "meta", "session:meta"]
+text_len: 1786
 confidence: 0.87
-token_cost: { input: 1400, output: 833, model: "claude-opus-4-6" }
+token_cost_input: 1400
+token_cost_output: 833
+token_cost_model: "claude-opus-4-6"
 protocol_version: "0.1"
 ---
 

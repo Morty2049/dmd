@@ -6,8 +6,11 @@ model: "claude-sonnet-4-6"
 role: answer
 reply_to: "1d76435e5c8e6c9a"
 tags: ["auth", "architecture", "jwt"]
+text_len: 235
 confidence: 0.88
-token_cost: { input: 520, output: 240, model: "claude-sonnet-4-6" }
+token_cost_input: 520
+token_cost_output: 240
+token_cost_model: "claude-sonnet-4-6"
 protocol_version: "0.1"
 ---
 

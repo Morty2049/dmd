@@ -6,8 +6,11 @@ model: "claude-opus-4-6"
 role: question
 reply_to: "367916a55f66f57f"
 tags: ["dmd:self", "architecture", "clarification", "session:scaffold"]
+text_len: 1311
 confidence: 0.85
-token_cost: { input: 1500, output: 466, model: "claude-opus-4-6" }
+token_cost_input: 1500
+token_cost_output: 466
+token_cost_model: "claude-opus-4-6"
 protocol_version: "0.1"
 ---
 

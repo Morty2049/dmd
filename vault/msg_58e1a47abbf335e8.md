@@ -6,6 +6,11 @@ model: null
 role: answer
 reply_to: "ee6d688658131c52"
 tags: ["dmd:self", "go", "remote", "session:scaffold"]
+text_len: 41
+confidence: null
+token_cost_input: null
+token_cost_output: null
+token_cost_model: null
 protocol_version: "0.1"
 ---
 

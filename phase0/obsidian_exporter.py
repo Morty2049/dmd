@@ -3,12 +3,17 @@
 # ADR-0005.
 """Materialize the JSONL log into an Obsidian vault.
 
-For each :class:`Message` we write ``vault/msg_<id>.md`` with YAML
-frontmatter (``id``, ``ts``, ``author``, ``model``, ``role``, ``tags``,
-``confidence``, ``token_cost``, ``protocol_version``) and a body that
-contains the message text followed by an Obsidian wikilink
-(``[[msg_<reply_to>]]``) to the parent. Open the vault in Obsidian and
-the Graph view renders the reasoning graph for free.
+Every exported ``.md`` file has an **identical frontmatter schema** —
+the same keys appear in the same order on every message, even when the
+underlying field is null or empty. This rigid shape is required so
+Obsidian's Dataview / Templater / filter queries can rely on a stable
+set of properties across the whole vault. Conditional frontmatter
+breaks "find all messages where confidence < 0.5" at the UI level.
+
+The nested ``token_cost`` object is deliberately flattened into three
+top-level fields (``token_cost_input`` / ``token_cost_output`` /
+``token_cost_model``) so Dataview can aggregate costs without parsing
+inline YAML objects.
 
 Export is idempotent: the same log always produces identical files,
 so running export repeatedly is safe and stable for diffs.
@@ -21,36 +26,62 @@ from pathlib import Path
 from phase0.reader import read_all
 from protocol.schema import Message
 
+# Fixed frontmatter key order — never change this without a protocol
+# version bump. Obsidian queries are cheap to write but expensive to
+# migrate.
+FRONTMATTER_KEYS = (
+    "id",
+    "ts",
+    "author",
+    "model",
+    "role",
+    "reply_to",
+    "tags",
+    "text_len",
+    "confidence",
+    "token_cost_input",
+    "token_cost_output",
+    "token_cost_model",
+    "protocol_version",
+)
+
 
 def _escape_yaml(value: str) -> str:
-    # Minimal YAML escaping for single-line string values.
     return value.replace("\\", "\\\\").replace('"', '\\"')
 
 
+def _yaml_str(value: str | None) -> str:
+    if value is None:
+        return "null"
+    return f'"{_escape_yaml(value)}"'
+
+
+def _yaml_tags(tags: list[str]) -> str:
+    if not tags:
+        return "[]"
+    return "[" + ", ".join(f'"{_escape_yaml(t)}"' for t in tags) + "]"
+
+
 def _render_frontmatter(msg: Message) -> list[str]:
-    model_yaml = "null" if msg.model is None else f'"{_escape_yaml(msg.model)}"'
-    lines = [
-        "---",
-        f'id: "{msg.id}"',
-        f"ts: {msg.ts.isoformat()}",
-        f'author: "{_escape_yaml(msg.author)}"',
-        f"model: {model_yaml}",
-        f"role: {msg.role.value}",
-    ]
-    if msg.reply_to is not None:
-        lines.append(f'reply_to: "{msg.reply_to}"')
-    if msg.tags:
-        tags_csv = ", ".join(f'"{_escape_yaml(t)}"' for t in msg.tags)
-        lines.append(f"tags: [{tags_csv}]")
-    if msg.confidence is not None:
-        lines.append(f"confidence: {msg.confidence}")
-    if msg.token_cost is not None:
-        lines.append(
-            f"token_cost: {{ input: {msg.token_cost.input}, "
-            f"output: {msg.token_cost.output}, "
-            f'model: "{_escape_yaml(msg.token_cost.model)}" }}'
-        )
-    lines.append(f'protocol_version: "{msg.protocol_version}"')
+    cost = msg.token_cost
+    values: dict[str, str] = {
+        "id": f'"{msg.id}"',
+        "ts": msg.ts.isoformat(),
+        "author": _yaml_str(msg.author),
+        "model": _yaml_str(msg.model),
+        "role": msg.role.value,
+        "reply_to": _yaml_str(msg.reply_to),
+        "tags": _yaml_tags(msg.tags),
+        "text_len": str(len(msg.text)),
+        "confidence": "null" if msg.confidence is None else f"{msg.confidence}",
+        "token_cost_input": "null" if cost is None else str(cost.input),
+        "token_cost_output": "null" if cost is None else str(cost.output),
+        "token_cost_model": _yaml_str(None if cost is None else cost.model),
+        "protocol_version": f'"{msg.protocol_version}"',
+    }
+    lines = ["---"]
+    for key in FRONTMATTER_KEYS:
+        lines.append(f"{key}: {values[key]}")
     lines.append("---")
     return lines
 

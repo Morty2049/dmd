@@ -6,8 +6,11 @@ model: "claude-opus-4-6"
 role: answer
 reply_to: "9c836f323e8c8d4c"
 tags: ["dmd:self", "validation", "bug-found", "buffering", "session:validate"]
+text_len: 884
 confidence: 0.95
-token_cost: { input: 800, output: 366, model: "claude-opus-4-6" }
+token_cost_input: 800
+token_cost_output: 366
+token_cost_model: "claude-opus-4-6"
 protocol_version: "0.1"
 ---
 

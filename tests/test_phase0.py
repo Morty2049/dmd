@@ -89,11 +89,35 @@ def test_export_creates_one_file_per_message_with_wikilinks(tmp_path: Path) -> N
     assert written == 2
     root_md = (vault / f"msg_{root.id}.md").read_text(encoding="utf-8")
     child_md = (vault / f"msg_{child.id}.md").read_text(encoding="utf-8")
-    assert f"id: \"{root.id}\"" in root_md
+    assert f'id: "{root.id}"' in root_md
     assert "role: question" in root_md
     assert f"[[msg_{root.id}]]" in child_md
     assert "role: answer" in child_md
-    assert "token_cost:" in child_md
+    # Rigid frontmatter: every key present, nulls written explicitly.
+    for key in (
+        "id",
+        "ts",
+        "author",
+        "model",
+        "role",
+        "reply_to",
+        "tags",
+        "text_len",
+        "confidence",
+        "token_cost_input",
+        "token_cost_output",
+        "token_cost_model",
+        "protocol_version",
+    ):
+        assert f"{key}:" in root_md, f"missing key in root: {key}"
+        assert f"{key}:" in child_md, f"missing key in child: {key}"
+    # Root has no token_cost → all three flattened fields are null.
+    assert "token_cost_input: null" in root_md
+    assert "token_cost_model: null" in root_md
+    # Child has token_cost → flattened with numeric values.
+    assert "token_cost_input: 10" in child_md
+    assert "token_cost_output: 5" in child_md
+    assert 'token_cost_model: "claude-opus-4-6"' in child_md
 
 
 def test_export_is_idempotent(tmp_path: Path) -> None:

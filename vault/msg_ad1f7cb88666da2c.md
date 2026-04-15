@@ -6,8 +6,11 @@ model: "gemini-2.0"
 role: answer
 reply_to: "f3f1fe040aa669b8"
 tags: ["storage", "clickhouse"]
+text_len: 191
 confidence: 0.9
-token_cost: { input: 380, output: 150, model: "gemini-2.0" }
+token_cost_input: 380
+token_cost_output: 150
+token_cost_model: "gemini-2.0"
 protocol_version: "0.1"
 ---
 
