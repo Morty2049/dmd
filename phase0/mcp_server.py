@@ -235,11 +235,12 @@ def append(
         tags=tags or [],
         chain_of_thought=chain_of_thought,
     )
-    append_to_log(msg, default_log_path())
+    # embed=True so the message is searchable immediately by the next
+    # tool call. The MCP server is a long-lived process so the model
+    # is loaded once and cached at module level.
+    append_to_log(msg, default_log_path(), embed=True)
     return (
-        f"appended {msg.id}\n"
-        f"(run the embedder to index this for semantic search: "
-        f"`.venv/bin/python -m phase0.embedder`)"
+        f"appended {msg.id} (indexed in Qdrant — searchable now)"
     )
 
 

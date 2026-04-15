@@ -42,6 +42,28 @@ BATCH_SIZE = 64
 PASSAGE_PREFIX = "passage: "
 QUERY_PREFIX = "query: "
 
+# Module-level lazy globals — loaded once per process. Long-lived
+# processes (MCP server) pay the ~3-5s model load on first append
+# then get free embeds. CLI one-shots that don't pass embed=True
+# never load the model at all.
+_model: SentenceTransformer | None = None
+_client: QdrantClient | None = None
+
+
+def _get_model() -> SentenceTransformer:
+    global _model
+    if _model is None:
+        _model = SentenceTransformer(EMBED_MODEL)
+    return _model
+
+
+def _get_client() -> QdrantClient:
+    global _client
+    if _client is None:
+        _client = QdrantClient(url=qdrant_url())
+        ensure_collection(_client, qdrant_collection())
+    return _client
+
 
 def ensure_collection(client: QdrantClient, name: str) -> None:
     """Create the Qdrant collection if it does not exist."""
@@ -92,29 +114,26 @@ def _qdrant_point_id(msg_id: str) -> int:
     return int(msg_id, 16)
 
 
-def embed_log(
+def embed_messages(
+    messages: list[Message],
     *,
-    log_path: Path | None = None,
-    collection: str | None = None,
-    url: str | None = None,
+    verbose: bool = False,
 ) -> int:
-    """Embed every message in the log into Qdrant. Returns count upserted."""
-    log_path = log_path or default_log_path()
-    collection = collection or qdrant_collection()
-    url = url or qdrant_url()
+    """Embed an arbitrary batch of messages and upsert into Qdrant.
 
-    print(f"embedder: reading {log_path}", file=sys.stderr)
-    messages = read_all(log_path)
+    Used both by ``embed_log`` (full-log batch) and by the appender
+    (single-message incremental embed when ``embed=True``). Loads the
+    model and Qdrant client lazily and caches them at module level
+    so a long-lived process pays the ~3-5 second startup once and
+    then sees per-message latency of ~30ms.
+
+    Returns the number of points upserted.
+    """
     if not messages:
-        print("embedder: empty log, nothing to do", file=sys.stderr)
         return 0
-
-    print(f"embedder: {len(messages)} unique messages to index", file=sys.stderr)
-    print(f"embedder: loading model '{EMBED_MODEL}' (may download ~120MB)", file=sys.stderr)
-    model = SentenceTransformer(EMBED_MODEL)
-
-    client = QdrantClient(url=url)
-    ensure_collection(client, collection)
+    model = _get_model()
+    client = _get_client()
+    collection = qdrant_collection()
 
     total = 0
     for start in range(0, len(messages), BATCH_SIZE):
@@ -135,11 +154,31 @@ def embed_log(
         ]
         client.upsert(collection_name=collection, points=points)
         total += len(points)
-        print(
-            f"embedder: upserted {total}/{len(messages)}",
-            file=sys.stderr,
-        )
+        if verbose:
+            print(
+                f"embedder: upserted {total}/{len(messages)}",
+                file=sys.stderr,
+            )
     return total
+
+
+def embed_log(
+    *,
+    log_path: Path | None = None,
+) -> int:
+    """Embed every message in the log into Qdrant. Returns count upserted."""
+    log_path = log_path or default_log_path()
+    print(f"embedder: reading {log_path}", file=sys.stderr)
+    messages = read_all(log_path)
+    if not messages:
+        print("embedder: empty log, nothing to do", file=sys.stderr)
+        return 0
+    print(
+        f"embedder: {len(messages)} unique messages to index "
+        f"with model '{EMBED_MODEL}' (may download ~120MB on first run)",
+        file=sys.stderr,
+    )
+    return embed_messages(messages, verbose=True)
 
 
 def main() -> int:
