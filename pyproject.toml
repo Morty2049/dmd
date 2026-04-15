@@ -10,10 +10,12 @@ dependencies = [
     "pydantic>=2.6",
     "qdrant-client>=1.10",
     "sentence-transformers>=3.0",
+    "mcp>=1.2",
 ]
 
 [project.scripts]
 dmd = "phase0.cli:main"
+dmd-mcp = "phase0.mcp_server:main"
 
 [project.optional-dependencies]
 dev = [
