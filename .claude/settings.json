@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && .venv/bin/python scripts/auto_ingest.py 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}
