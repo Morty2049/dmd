@@ -7,10 +7,10 @@ not merely that it was said. See ADR-0002 for rationale.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class Role(str, Enum):
+class Role(StrEnum):
     """The type of thought-act a message performs."""
 
     QUESTION = "question"

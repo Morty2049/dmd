@@ -17,7 +17,7 @@ See ADR-0002 for field-by-field rationale.
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -107,7 +107,7 @@ class Message(BaseModel):
         ids — this is the idempotency guarantee the storage layer relies
         on for safe replay.
         """
-        resolved_ts = ts if ts is not None else datetime.now(tz=timezone.utc)
+        resolved_ts = ts if ts is not None else datetime.now(tz=UTC)
         msg_id = _compute_id(author=author, ts=resolved_ts, text=text)
         return cls(
             id=msg_id,

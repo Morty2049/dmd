@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dmd demo (seed log)",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "phase0.cli", "demo"],
+      "port": 0
+    },
+    {
+      "name": "dmd watch as @claude_opus",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "phase0.cli", "watch", "--as", "claude_opus"],
+      "port": 0
+    },
+    {
+      "name": "dmd watch as @gemini",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "phase0.cli", "watch", "--as", "gemini"],
+      "port": 0
+    }
+  ]
+}

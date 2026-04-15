@@ -13,7 +13,7 @@ dependencies = [
 [project.scripts]
 dmd = "phase0.cli:main"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "ruff>=0.6",
     "pyright>=1.1.380",
@@ -36,14 +36,9 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pyright]
 pythonVersion = "3.11"
-include = ["protocol", "phase0"]
-exclude = ["**/__pycache__", "research", "references", "vault", "data"]
-
-[[tool.pyright.executionEnvironments]]
-root = "protocol"
-reportMissingTypeStubs = "error"
-strict = ["**/*.py"]
-
-[[tool.pyright.executionEnvironments]]
-root = "phase0"
-reportMissingTypeStubs = "warning"
+venvPath = "."
+venv = ".venv"
+include = ["protocol", "phase0", "tests"]
+exclude = ["**/__pycache__", "research", "references", "vault", "data", ".venv"]
+strict = ["protocol"]
+reportMissingTypeStubs = false
