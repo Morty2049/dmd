@@ -1,0 +1,49 @@
+[project]
+name = "dmd"
+version = "0.0.1"
+description = "Append-only message log as collective memory for an agent swarm"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Morty2049" }]
+dependencies = [
+    "pydantic>=2.6",
+]
+
+[project.scripts]
+dmd = "phase0.cli:main"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "pyright>=1.1.380",
+    "pytest>=8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["protocol", "phase0"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+include = ["protocol", "phase0"]
+exclude = ["**/__pycache__", "research", "references", "vault", "data"]
+
+[[tool.pyright.executionEnvironments]]
+root = "protocol"
+reportMissingTypeStubs = "error"
+strict = ["**/*.py"]
+
+[[tool.pyright.executionEnvironments]]
+root = "phase0"
+reportMissingTypeStubs = "warning"

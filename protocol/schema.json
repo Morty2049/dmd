@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "Role": {
+      "description": "The type of thought-act a message performs.",
+      "enum": [
+        "question",
+        "answer",
+        "correction",
+        "reflection",
+        "mention",
+        "system"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "TokenCost": {
+      "description": "Tokens spent producing a single message.\n\nRequired on every non-human message so the swarm can compute its own\noperating cost, rank cheap-but-good solutions, and detect runaway\nagents. Human messages set this to ``None``.",
+      "properties": {
+        "input": {
+          "description": "Input (prompt) tokens consumed.",
+          "minimum": 0,
+          "title": "Input",
+          "type": "integer"
+        },
+        "output": {
+          "description": "Output (completion) tokens produced.",
+          "minimum": 0,
+          "title": "Output",
+          "type": "integer"
+        },
+        "model": {
+          "description": "Model identifier used for billing \u2014 may differ from ``Message.model`` if routed through a gateway.",
+          "title": "Model",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input",
+        "output",
+        "model"
+      ],
+      "title": "TokenCost",
+      "type": "object"
+    }
+  },
+  "description": "A single append-only entry in the swarm log.",
+  "properties": {
+    "id": {
+      "description": "sha256(author|ts_iso|text)[:16]. Deterministic \u2014 replays are idempotent.",
+      "maxLength": 16,
+      "minLength": 16,
+      "title": "Id",
+      "type": "string"
+    },
+    "ts": {
+      "description": "UTC timestamp; ms precision recommended.",
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "author": {
+      "description": "Agent id or human handle.",
+      "minLength": 1,
+      "title": "Author",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model identifier, e.g. ``claude-opus-4-6``. ``None`` for humans.",
+      "title": "Model"
+    },
+    "role": {
+      "$ref": "#/$defs/Role",
+      "description": "Type of thought-act this message performs."
+    },
+    "reply_to": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Parent message id \u2014 drives the reasoning graph edges.",
+      "title": "Reply To"
+    },
+    "tags": {
+      "description": "Routing and filtering hints; used by the mention router and semantic filter.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "text": {
+      "description": "Message body. Markdown permitted.",
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Author's self-rated confidence in this message (0-1).",
+      "title": "Confidence"
+    },
+    "token_cost": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TokenCost"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Tokens consumed producing this message. ``None`` for human authors."
+    },
+    "protocol_version": {
+      "const": "0.1",
+      "default": "0.1",
+      "description": "Schema version. Bump via ADR; never edit messages in place.",
+      "title": "Protocol Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "ts",
+    "author",
+    "role",
+    "text"
+  ],
+  "title": "Message",
+  "type": "object"
+}

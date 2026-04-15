@@ -1,0 +1,48 @@
+# macOS
+.DS_Store
+
+# Brainstorm artifacts and external reference material — tracked in README,
+# not committed to the repo.
+research/
+references/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.python-version
+
+# uv
+.uv/
+
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+.pyright/
+.mypy_cache/
+
+# Phase 0 local data — directory is tracked via .gitkeep, contents are not.
+data/*.jsonl
+data/*.jsonl.idx
+
+# Obsidian user-local UI state (keep vault structure, ignore per-user state)
+vault/.obsidian/workspace*
+vault/.obsidian/cache
+vault/.obsidian/plugins/*/data.json
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Plan-mode scratch file from initial scaffolding session
+implementation_plan_*.md
