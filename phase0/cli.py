@@ -22,6 +22,7 @@ Paths default to ``$DMD_LOG_PATH`` (fallback ``data/swarm.jsonl``) and
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import sys
 import time
@@ -138,6 +139,10 @@ def cmd_watch(args: argparse.Namespace) -> int:
     Ctrl-C to stop.
     """
     print(f"watching {args.log} as @{args.as_} — Ctrl-C to stop", file=sys.stderr)
+    # Force line buffering so piped/IDE consoles see each match immediately.
+    # sys.stdout is a TextIOWrapper at runtime but typed as TextIO in stubs.
+    if isinstance(sys.stdout, io.TextIOWrapper):
+        sys.stdout.reconfigure(line_buffering=True)
     offset = 0
     try:
         while True:
