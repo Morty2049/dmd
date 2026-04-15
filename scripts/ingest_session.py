@@ -1,4 +1,21 @@
-"""Ingest this project's real construction conversation into the swarm log.
+"""DEPRECATED — superseded by scripts/ingest_claude_transcript.py.
+
+Historical: this script replayed the 2026-04-15 scaffolding session
+as hand-reconstructed Messages. It was the best we could do before
+we discovered (later the same day, see ADR-0008) that every Claude
+Code session persists its full transcript — including thinking
+blocks, tool calls, and token usage — on disk at
+``~/.claude/projects/<slug>/<session-uuid>.jsonl``. The transcript
+ingester reads the real thing deterministically; this script's
+condensed summaries are a strictly weaker substitute.
+
+The messages this script produces remain in the log per the
+append-only doctrine (ADR-0001) — they document an earlier
+understanding of how ingestion had to work. Do NOT run this script
+on new sessions. Use ``scripts/ingest_claude_transcript.py`` instead.
+
+Original docstring preserved for historical reference:
+--
 
 Dogfooding: dmd should remember how dmd was built. This script replays
 the key turns of the 2026-04-15 scaffolding session — the human (morty)

@@ -7,6 +7,7 @@ role: answer
 reply_to: "05ef7c160b5c934e"
 tags: ["dmd:self", "self-ingest", "dogfooding", "meta", "session:meta"]
 text_len: 1786
+chain_of_thought_len: null
 confidence: 0.87
 token_cost_input: 1400
 token_cost_output: 833

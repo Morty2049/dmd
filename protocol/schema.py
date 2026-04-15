@@ -24,7 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from protocol.roles import Role
 
-PROTOCOL_VERSION = "0.1"
+PROTOCOL_VERSION = "0.2"
 ID_LENGTH = 16  # hex chars of the sha256 prefix used as the message id
 
 
@@ -82,7 +82,15 @@ class Message(BaseModel):
         default=None,
         description="Tokens consumed producing this message. ``None`` for human authors.",
     )
-    protocol_version: Literal["0.1"] = Field(
+    chain_of_thought: str | None = Field(
+        default=None,
+        description=(
+            "Author's private reasoning, e.g. concatenated thinking blocks "
+            "from the Claude transcript. ``None`` for humans and for "
+            "agents that do not expose their CoT. See ADR-0006."
+        ),
+    )
+    protocol_version: Literal["0.1", "0.2"] = Field(
         default=PROTOCOL_VERSION,
         description="Schema version. Bump via ADR; never edit messages in place.",
     )
@@ -100,6 +108,7 @@ class Message(BaseModel):
         tags: list[str] | None = None,
         confidence: float | None = None,
         token_cost: TokenCost | None = None,
+        chain_of_thought: str | None = None,
     ) -> Message:
         """Build a Message with a deterministic id.
 
@@ -120,6 +129,7 @@ class Message(BaseModel):
             text=text,
             confidence=confidence,
             token_cost=token_cost,
+            chain_of_thought=chain_of_thought,
         )
 
 

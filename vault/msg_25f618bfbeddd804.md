@@ -7,6 +7,7 @@ role: answer
 reply_to: "9c836f323e8c8d4c"
 tags: ["dmd:self", "validation", "bug-found", "buffering", "session:validate"]
 text_len: 884
+chain_of_thought_len: null
 confidence: 0.95
 token_cost_input: 800
 token_cost_output: 366

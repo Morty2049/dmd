@@ -7,6 +7,7 @@ role: answer
 reply_to: "25f618bfbeddd804"
 tags: ["dmd:self", "approve-fix", "vault-question", "session:validate"]
 text_len: 111
+chain_of_thought_len: null
 confidence: null
 token_cost_input: null
 token_cost_output: null

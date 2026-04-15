@@ -7,6 +7,7 @@ role: question
 reply_to: "367916a55f66f57f"
 tags: ["dmd:self", "architecture", "clarification", "session:scaffold"]
 text_len: 1311
+chain_of_thought_len: null
 confidence: 0.85
 token_cost_input: 1500
 token_cost_output: 466

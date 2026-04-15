@@ -7,6 +7,7 @@ role: answer
 reply_to: "f3f1fe040aa669b8"
 tags: ["storage", "clickhouse"]
 text_len: 191
+chain_of_thought_len: null
 confidence: 0.9
 token_cost_input: 380
 token_cost_output: 150

@@ -7,6 +7,7 @@ role: question
 reply_to: null
 tags: ["auth", "oauth"]
 text_len: 78
+chain_of_thought_len: null
 confidence: null
 token_cost_input: null
 token_cost_output: null

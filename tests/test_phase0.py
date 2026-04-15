@@ -103,6 +103,7 @@ def test_export_creates_one_file_per_message_with_wikilinks(tmp_path: Path) -> N
         "reply_to",
         "tags",
         "text_len",
+        "chain_of_thought_len",
         "confidence",
         "token_cost_input",
         "token_cost_output",

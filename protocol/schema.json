@@ -135,10 +135,26 @@
       "default": null,
       "description": "Tokens consumed producing this message. ``None`` for human authors."
     },
+    "chain_of_thought": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Author's private reasoning, e.g. concatenated thinking blocks from the Claude transcript. ``None`` for humans and for agents that do not expose their CoT. See ADR-0006.",
+      "title": "Chain Of Thought"
+    },
     "protocol_version": {
-      "const": "0.1",
-      "default": "0.1",
+      "default": "0.2",
       "description": "Schema version. Bump via ADR; never edit messages in place.",
+      "enum": [
+        "0.1",
+        "0.2"
+      ],
       "title": "Protocol Version",
       "type": "string"
     }

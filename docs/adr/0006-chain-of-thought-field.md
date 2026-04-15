@@ -1,6 +1,9 @@
 # ADR-0006: Add `chain_of_thought` field to the Message protocol
 
-- **Status:** Proposed
+- **Status:** Accepted (promoted from Proposed later the same day, after
+  ADR-0008 proved thinking blocks are available on disk in the native
+  Claude transcript format and populating the field is deterministic,
+  not post-hoc storytelling)
 - **Date:** 2026-04-15
 - **Deciders:** @Morty2049, @claude_opus_app
 

@@ -7,6 +7,7 @@ role: question
 reply_to: null
 tags: ["storage", "infra"]
 text_len: 46
+chain_of_thought_len: null
 confidence: null
 token_cost_input: null
 token_cost_output: null

@@ -38,6 +38,7 @@ FRONTMATTER_KEYS = (
     "reply_to",
     "tags",
     "text_len",
+    "chain_of_thought_len",
     "confidence",
     "token_cost_input",
     "token_cost_output",
@@ -64,6 +65,7 @@ def _yaml_tags(tags: list[str]) -> str:
 
 def _render_frontmatter(msg: Message) -> list[str]:
     cost = msg.token_cost
+    cot_len = "null" if msg.chain_of_thought is None else str(len(msg.chain_of_thought))
     values: dict[str, str] = {
         "id": f'"{msg.id}"',
         "ts": msg.ts.isoformat(),
@@ -73,6 +75,7 @@ def _render_frontmatter(msg: Message) -> list[str]:
         "reply_to": _yaml_str(msg.reply_to),
         "tags": _yaml_tags(msg.tags),
         "text_len": str(len(msg.text)),
+        "chain_of_thought_len": cot_len,
         "confidence": "null" if msg.confidence is None else f"{msg.confidence}",
         "token_cost_input": "null" if cost is None else str(cost.input),
         "token_cost_output": "null" if cost is None else str(cost.output),
@@ -91,6 +94,13 @@ def _render(msg: Message) -> str:
     parts.append("")
     parts.append(msg.text.strip())
     parts.append("")
+    if msg.chain_of_thought is not None:
+        # Obsidian callout, collapsed by default ("-"). Each CoT line
+        # is quoted so Markdown renders the whole block as one callout.
+        parts.append("> [!note]- chain of thought")
+        for line in msg.chain_of_thought.strip().splitlines() or [""]:
+            parts.append(f"> {line}" if line else ">")
+        parts.append("")
     if msg.reply_to is not None:
         parts.append(f"↩ Replies to: [[msg_{msg.reply_to}]]")
     return "\n".join(parts) + "\n"

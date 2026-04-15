@@ -7,6 +7,7 @@ role: answer
 reply_to: "b5310e4c9e1b3d6d"
 tags: ["dmd:self", "bug-fix", "vault-explanation", "three-options", "session:validate"]
 text_len: 1411
+chain_of_thought_len: null
 confidence: 0.9
 token_cost_input: 1033
 token_cost_output: 600

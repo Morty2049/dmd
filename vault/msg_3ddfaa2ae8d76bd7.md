@@ -7,6 +7,7 @@ role: answer
 reply_to: "1d76435e5c8e6c9a"
 tags: ["auth", "architecture", "jwt"]
 text_len: 235
+chain_of_thought_len: null
 confidence: 0.88
 token_cost_input: 520
 token_cost_output: 240

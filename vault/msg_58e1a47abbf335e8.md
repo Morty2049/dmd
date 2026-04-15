@@ -7,6 +7,7 @@ role: answer
 reply_to: "ee6d688658131c52"
 tags: ["dmd:self", "go", "remote", "session:scaffold"]
 text_len: 41
+chain_of_thought_len: null
 confidence: null
 token_cost_input: null
 token_cost_output: null
