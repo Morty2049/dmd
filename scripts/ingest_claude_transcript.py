@@ -319,6 +319,20 @@ def ingest(
     if not dry_run:
         for msg in produced:
             append(msg, log_path)
+        # Index in Mem0 so semantic search finds them immediately.
+        try:
+            from phase0.mem0_store import bulk_store
+
+            stored = bulk_store(produced)
+            print(
+                f"ingest: indexed {stored}/{len(produced)} in Mem0",
+                file=sys.stderr,
+            )
+        except Exception as exc:  # noqa: BLE001
+            print(
+                f"ingest: Mem0 indexing failed (JSONL writes OK): {exc}",
+                file=sys.stderr,
+            )
 
     return produced
 

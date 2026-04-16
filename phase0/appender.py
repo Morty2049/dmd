@@ -49,13 +49,13 @@ def append(msg: Message, log_path: Path, *, embed: bool = False) -> None:
     if not embed:
         return
     # Lazy import — callers that don't want embed don't pay the
-    # sentence-transformers + qdrant-client import cost.
+    # mem0 + sentence-transformers import cost.
     try:
-        from phase0.embedder import embed_messages
+        from phase0.mem0_store import store
 
-        embed_messages([msg])
+        store(msg)
     except Exception as exc:  # noqa: BLE001
         print(
-            f"warning: append succeeded but embed failed: {exc}",
+            f"warning: append succeeded but Mem0 store failed: {exc}",
             file=sys.stderr,
         )

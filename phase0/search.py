@@ -1,103 +1,31 @@
-# PHASE0: Qdrant-backed semantic search over the append-only log.
-# Replaces the earlier substring-only implementation. See ADR-0009.
+# PHASE0: Semantic search via Mem0 (ADR-0011), substring fallback.
 """L1 query path: semantic search over the swarm log.
 
-Given a natural language query, embed it with the same multilingual
-model used by the embedder, query the Qdrant collection for top-k
-nearest neighbors by cosine similarity, and return the matching
-:class:`Message` records. No substring matching; no recency bias;
-pure semantic retrieval.
-
-A fallback substring search is still available via
-``search(query, log_path, mode="substring")`` for debugging and for
-times when the Qdrant service is down — the hot log on disk is
-always readable, the vector index is not.
+Primary path goes through Mem0 (which manages Qdrant embeddings
+internally). Fallback substring search reads the JSONL hot log
+directly — works when Qdrant is down.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from qdrant_client import QdrantClient
-
-from phase0.embedder import EMBED_MODEL, QUERY_PREFIX
-from phase0.paths import default_log_path, qdrant_collection, qdrant_url
+from phase0.paths import default_log_path
 from phase0.reader import read_all
-from protocol.roles import Role
-from protocol.schema import Message, TokenCost
-
-# Lazy global so the model loads exactly once per process.
-_model = None
-
-
-def _get_model():  # type: ignore[no-untyped-def]
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
-
-        _model = SentenceTransformer(EMBED_MODEL)
-    return _model
-
-
-def _payload_to_message(payload: dict[str, object]) -> Message:
-    """Reconstruct a :class:`Message` from a Qdrant payload."""
-    from datetime import datetime
-
-    ts_raw = payload.get("ts")
-    ts = datetime.fromisoformat(ts_raw) if isinstance(ts_raw, str) else datetime.now()
-    role_raw = payload.get("role", "answer")
-    role = Role(role_raw) if isinstance(role_raw, str) else Role.ANSWER
-    model_raw = payload.get("model")
-    reply_to_raw = payload.get("reply_to")
-    cost_raw = payload.get("token_cost")
-    return Message(
-        id=str(payload.get("id", "")),
-        ts=ts,
-        author=str(payload.get("author", "unknown")),
-        model=model_raw if isinstance(model_raw, str) else None,
-        role=role,
-        reply_to=reply_to_raw if isinstance(reply_to_raw, str) else None,
-        tags=list(payload.get("tags") or []),  # type: ignore[arg-type]
-        text=str(payload.get("text", "")),
-        confidence=None,
-        token_cost=TokenCost(**cost_raw) if isinstance(cost_raw, dict) else None,
-        chain_of_thought=None,
-    )
+from protocol.schema import Message
 
 
 def search_semantic(
     query: str,
     *,
     top_k: int = 5,
-    collection: str | None = None,
-    url: str | None = None,
-    score_threshold: float | None = None,
+    user_id: str = "global",
+    agent_id: str | None = None,
 ) -> list[tuple[float, Message]]:
-    """Return ``[(score, message), ...]`` sorted by descending similarity."""
-    collection = collection or qdrant_collection()
-    url = url or qdrant_url()
+    """Semantic search via Mem0 → Qdrant."""
+    from phase0.mem0_store import query as mem0_query
 
-    model = _get_model()
-    vec = model.encode(
-        [f"{QUERY_PREFIX}{query}"],
-        normalize_embeddings=True,
-    )[0].tolist()
-
-    client = QdrantClient(url=url)
-    hits = client.query_points(
-        collection_name=collection,
-        query=vec,
-        limit=top_k,
-        with_payload=True,
-        score_threshold=score_threshold,
-    ).points
-
-    out: list[tuple[float, Message]] = []
-    for h in hits:
-        if h.payload is None:
-            continue
-        out.append((float(h.score), _payload_to_message(h.payload)))
-    return out
+    return mem0_query(query, top_k=top_k, user_id=user_id, agent_id=agent_id)
 
 
 def search_substring(query: str, log_path: Path, *, top_k: int = 5) -> list[Message]:
@@ -125,12 +53,7 @@ def search(
     top_k: int = 5,
     mode: str = "semantic",
 ) -> list[Message]:
-    """Top-level query API — defaults to semantic, substring on fallback.
-
-    Preserves the pre-existing substring signature so the CLI does
-    not need to change shape, but swaps the default to real semantic
-    retrieval against Qdrant.
-    """
+    """Top-level query API — semantic default, substring fallback."""
     if mode == "substring":
         return search_substring(query, log_path or default_log_path(), top_k=top_k)
     hits = search_semantic(query, top_k=top_k)

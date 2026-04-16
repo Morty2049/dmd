@@ -36,7 +36,7 @@ from typing import Any
 from mcp.server.fastmcp import FastMCP
 
 from phase0.appender import append as append_to_log
-from phase0.paths import default_log_path, qdrant_collection, qdrant_url
+from phase0.paths import default_log_path
 from phase0.reader import read_all
 from phase0.search import search_semantic
 from protocol.roles import Role
@@ -134,9 +134,7 @@ def search(query: str, top_k: int = 5) -> str:
     except Exception as exc:  # noqa: BLE001
         return (
             f"semantic search failed: {exc}\n"
-            f"Is the Qdrant container running? "
-            f"`docker compose up -d qdrant` from the dmd repo. "
-            f"Endpoint: {qdrant_url()}, collection: {qdrant_collection()}"
+            f"Is Qdrant running? `docker compose up -d qdrant` from the dmd repo."
         )
     if not hits:
         return f"(no hits for '{query}' — log may be unindexed)"

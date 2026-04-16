@@ -1,8 +1,14 @@
-# PHASE0: this will grow a proper async worker in Phase 2 (see
-# ADR-0003). For now it's a batch process run manually or by
-# auto_ingest. The core logic — local multilingual embeddings upserted
-# into Qdrant keyed by Message.id — is the part that survives.
-"""L2 → L1 bridge: embed every Message in the hot log into Qdrant.
+# DEPRECATED — replaced by phase0/mem0_store.py (ADR-0011).
+# This file remains for two reasons:
+# 1. append-only repo hygiene (don't delete, deprecate)
+# 2. embed_log() can still be used as a one-shot migration tool to
+#    re-index the entire JSONL into our custom dmd_messages Qdrant
+#    collection (vs Mem0's mem0_dmd collection)
+#
+# For normal operations, use mem0_store.store() / mem0_store.query()
+# instead. The MCP server, appender, and transcript ingester all
+# route through mem0_store now.
+"""DEPRECATED: L2 → L1 bridge via raw Qdrant. Use mem0_store instead.
 
 Pipeline:
 - read the append-only log from ``~/.dmd/swarm.jsonl``
